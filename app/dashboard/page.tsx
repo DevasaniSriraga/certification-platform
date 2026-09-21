@@ -38,6 +38,12 @@ export default async function DashboardPage() {
         >
           Practical project &rarr;
         </Link>
+        <Link
+          href="/certificate"
+          className="rounded border border-gray-300 p-4 font-medium hover:bg-gray-50"
+        >
+          Certificate &rarr;
+        </Link>
         {user?.role === "admin" && (
           <Link
             href="/admin"
