@@ -18,6 +18,10 @@ export const LoginFormSchema = z.object({
   password: z.string().min(1, { error: "Password is required." }),
 });
 
+export const ProjectLinkSchema = z.object({
+  link: z.url({ error: "Enter a valid URL to your dashboard/app." }).trim(),
+});
+
 export type FormState =
   | {
       errors?: {

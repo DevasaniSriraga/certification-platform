@@ -19,8 +19,9 @@ export default async function QuizIndexPage() {
 
       <h1 className="mt-4 text-2xl font-semibold">Certification quiz</h1>
       <p className="mt-2 text-gray-600">
-        Pass all {quizModules.length} modules at 80% or higher to earn your
-        certificate. Each module allows up to {MAX_ATTEMPTS} attempts.
+        Pass all {quizModules.length} modules at 80% or higher, then submit a
+        practical project for approval to earn your certificate. Each module
+        allows up to {MAX_ATTEMPTS} attempts.
       </p>
 
       <p className="mt-4 text-sm font-medium">
@@ -29,10 +30,10 @@ export default async function QuizIndexPage() {
 
       {allPassed && (
         <Link
-          href="/certificate"
+          href="/project"
           className="mt-4 rounded bg-black px-4 py-2 text-center text-white"
         >
-          View your certificate
+          Submit your practical project &rarr;
         </Link>
       )}
 

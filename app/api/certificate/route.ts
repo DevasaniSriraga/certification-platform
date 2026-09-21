@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { verifySession, getCurrentUser } from "@/app/lib/dal";
 import { hasPassedAllModules } from "@/app/lib/quiz-progress";
+import { hasApprovedProject } from "@/app/lib/project-progress";
 import { getOrCreateCertificate } from "@/app/lib/certificate-registry";
 import { generateCertificatePdf } from "@/app/lib/certificate";
 
 export async function GET() {
   const session = await verifySession();
 
-  const allPassed = await hasPassedAllModules(session.userId);
-  if (!allPassed) {
+  const [allPassed, projectApproved] = await Promise.all([
+    hasPassedAllModules(session.userId),
+    hasApprovedProject(session.userId),
+  ]);
+  if (!allPassed || !projectApproved) {
     return NextResponse.json(
       { error: "Certificate not yet earned." },
       { status: 403 }

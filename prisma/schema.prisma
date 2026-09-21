@@ -13,14 +13,15 @@ datasource db {
 }
 
 model User {
-  id            String        @id @default(cuid())
-  fullName      String
-  email         String        @unique
-  passwordHash  String
-  role          String        @default("user")
-  createdAt     DateTime      @default(now())
-  quizAttempts  QuizAttempt[]
-  certificate   Certificate?
+  id                String             @id @default(cuid())
+  fullName          String
+  email             String             @unique
+  passwordHash      String
+  role              String             @default("user")
+  createdAt         DateTime           @default(now())
+  quizAttempts      QuizAttempt[]
+  certificate       Certificate?
+  projectSubmission ProjectSubmission?
 }
 
 model QuizAttempt {
@@ -42,4 +43,17 @@ model Certificate {
   certificateId String   @unique
   issuedAt      DateTime @default(now())
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ProjectSubmission {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  link         String
+  pdfUrl       String
+  pdfFileName  String
+  status       String    @default("pending") // pending | approved | rejected
+  reviewNote   String?
+  submittedAt  DateTime  @default(now())
+  reviewedAt   DateTime?
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

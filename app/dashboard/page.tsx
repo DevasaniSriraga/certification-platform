@@ -32,12 +32,18 @@ export default async function DashboardPage() {
         >
           Certification quiz &rarr;
         </Link>
+        <Link
+          href="/project"
+          className="rounded border border-gray-300 p-4 font-medium hover:bg-gray-50"
+        >
+          Practical project &rarr;
+        </Link>
         {user?.role === "admin" && (
           <Link
             href="/admin"
             className="rounded border border-gray-300 p-4 font-medium hover:bg-gray-50"
           >
-            Admin: create accounts &rarr;
+            Admin portal &rarr;
           </Link>
         )}
       </div>

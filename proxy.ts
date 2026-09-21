@@ -7,6 +7,7 @@ const protectedRoutes = [
   "/quiz",
   "/certificate",
   "/admin",
+  "/project",
 ];
 const authRoutes = ["/login"];
 
