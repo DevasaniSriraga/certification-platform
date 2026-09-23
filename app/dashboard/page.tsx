@@ -21,16 +21,13 @@ export default async function DashboardPage() {
 
       <div className="mt-10 flex flex-col gap-4">
         <Link
-          href="/learning"
-          className="rounded border border-gray-300 p-4 font-medium hover:bg-gray-50"
-        >
-          Learning material &rarr;
-        </Link>
-        <Link
           href="/quiz"
-          className="rounded border border-gray-300 p-4 font-medium hover:bg-gray-50"
+          className="rounded border border-black bg-black p-4 font-medium text-white hover:bg-gray-800"
         >
-          Certification quiz &rarr;
+          Start here! &rarr;
+          <span className="mt-1 block text-sm font-normal text-gray-300">
+            View guided resources and module-wise quizzes here.
+          </span>
         </Link>
         <Link
           href="/project"

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { verifySession } from "@/app/lib/dal";
 import { quizModules, MAX_ATTEMPTS } from "@/app/lib/quiz-data";
 import { getAllModuleProgress } from "@/app/lib/quiz-progress";
+import { learningMaterials } from "@/app/lib/learning-materials";
 
 export default async function QuizIndexPage() {
   const session = await verifySession();
@@ -17,14 +18,36 @@ export default async function QuizIndexPage() {
         &larr; Back to dashboard
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold">Certification quiz</h1>
+      <h1 className="mt-4 text-2xl font-semibold">Start here</h1>
       <p className="mt-2 text-gray-600">
-        Pass all {quizModules.length} modules at 80% or higher, then submit a
+        View guided resources and module-wise quizzes here. Pass all{" "}
+        {quizModules.length} modules at 80% or higher, then submit a
         practical project for approval to earn your certificate. Each module
         allows up to {MAX_ATTEMPTS} attempts.
       </p>
 
-      <p className="mt-4 text-sm font-medium">
+      <div className="mt-8">
+        <h2 className="text-lg font-medium">Guided resources</h2>
+        <ul className="mt-4 flex flex-col gap-4">
+          {learningMaterials.map((material) => (
+            <li key={material.id} className="rounded border border-gray-300 p-4">
+              <a
+                href={material.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline"
+              >
+                {material.title}
+              </a>
+              <p className="mt-1 text-sm text-gray-600">
+                {material.description}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="mt-8 text-sm font-medium">
         {passedCount} / {quizModules.length} modules passed
       </p>
 
@@ -37,56 +60,59 @@ export default async function QuizIndexPage() {
         </Link>
       )}
 
-      <ul className="mt-6 flex flex-col gap-3">
-        {quizModules.map((quizModule) => {
-          const p = progressByModule.get(quizModule.id);
-          const passed = p?.passed ?? false;
-          const attemptsUsed = p?.attemptsUsed ?? 0;
-          const locked = p?.locked ?? false;
+      <div className="mt-6">
+        <h2 className="text-lg font-medium">Modules</h2>
+        <ul className="mt-4 flex flex-col gap-3">
+          {quizModules.map((quizModule) => {
+            const p = progressByModule.get(quizModule.id);
+            const passed = p?.passed ?? false;
+            const attemptsUsed = p?.attemptsUsed ?? 0;
+            const locked = p?.locked ?? false;
 
-          let status: string;
-          let statusClass: string;
-          if (passed) {
-            status = `Passed (${p?.bestScore}/${p?.bestTotal})`;
-            statusClass = "text-green-700";
-          } else if (locked) {
-            status = "No attempts remaining";
-            statusClass = "text-red-700";
-          } else if (attemptsUsed > 0) {
-            status = `${MAX_ATTEMPTS - attemptsUsed} attempt(s) left`;
-            statusClass = "text-amber-700";
-          } else {
-            status = "Not started";
-            statusClass = "text-gray-500";
-          }
+            let status: string;
+            let statusClass: string;
+            if (passed) {
+              status = `Passed (${p?.bestScore}/${p?.bestTotal})`;
+              statusClass = "text-green-700";
+            } else if (locked) {
+              status = "No attempts remaining";
+              statusClass = "text-red-700";
+            } else if (attemptsUsed > 0) {
+              status = `${MAX_ATTEMPTS - attemptsUsed} attempt(s) left`;
+              statusClass = "text-amber-700";
+            } else {
+              status = "Not started";
+              statusClass = "text-gray-500";
+            }
 
-          return (
-            <li
-              key={quizModule.id}
-              className="flex items-center justify-between rounded border border-gray-300 p-4"
-            >
-              <div>
-                <p className="font-medium">
-                  Module {quizModule.order}: {quizModule.title}
-                </p>
-                <p className={`text-sm ${statusClass}`}>{status}</p>
-              </div>
-              {passed ? (
-                <span className="text-sm text-gray-400">Complete</span>
-              ) : locked ? (
-                <span className="text-sm text-gray-400">Locked</span>
-              ) : (
-                <Link
-                  href={`/quiz/${quizModule.id}`}
-                  className="rounded border border-gray-400 px-3 py-1.5 text-sm"
-                >
-                  {attemptsUsed > 0 ? "Retry" : "Start"}
-                </Link>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+            return (
+              <li
+                key={quizModule.id}
+                className="flex items-center justify-between rounded border border-gray-300 p-4"
+              >
+                <div>
+                  <p className="font-medium">
+                    Module {quizModule.order}: {quizModule.title}
+                  </p>
+                  <p className={`text-sm ${statusClass}`}>{status}</p>
+                </div>
+                {passed ? (
+                  <span className="text-sm text-gray-400">Complete</span>
+                ) : locked ? (
+                  <span className="text-sm text-gray-400">Locked</span>
+                ) : (
+                  <Link
+                    href={`/quiz/${quizModule.id}`}
+                    className="rounded border border-gray-400 px-3 py-1.5 text-sm"
+                  >
+                    {attemptsUsed > 0 ? "Retry" : "Start"}
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </main>
   );
 }

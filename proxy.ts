@@ -3,7 +3,6 @@ import { jwtVerify } from "jose";
 
 const protectedRoutes = [
   "/dashboard",
-  "/learning",
   "/quiz",
   "/certificate",
   "/admin",
