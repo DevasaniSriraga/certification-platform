@@ -10,6 +10,8 @@ export type QuizCategory = {
   id: string;
   order: number;
   title: string;
+  recordedWalkthroughUrl: string;
+  trainingSlidesUrl: string;
 };
 
 export type QuizModule = {
@@ -23,12 +25,47 @@ export type QuizModule = {
 const PASS_THRESHOLD = 0.8;
 const MAX_ATTEMPTS = 3;
 
+const SHARED_TRAINING_SLIDES_URL =
+  "https://coparto365.sharepoint.com/:b:/s/all-it/IQA55tYsJykaR5JQR3zqo9F6ATkpOChM814g8MU1gE5gaTE?e=KiFL8I";
+
 export const quizCategories: QuizCategory[] = [
-  { id: "user-101", order: 1, title: "User 101" },
-  { id: "developer-101", order: 2, title: "Developer 101" },
-  { id: "permissions-control", order: 3, title: "Permissions & Control" },
-  { id: "embedded-analytics", order: 4, title: "Embedded Analytics" },
-  { id: "ai-modes-optimization", order: 5, title: "AI Modes & Optimization" },
+  {
+    id: "user-101",
+    order: 1,
+    title: "User 101",
+    recordedWalkthroughUrl: "https://www.loom.com/share/2148c1dee768411f9f409e928b4dd856",
+    trainingSlidesUrl:
+      "https://coparto365.sharepoint.com/:b:/s/all-it/IQDaNUxRMrN-QJLYuqCooGuLAe2ea-lCBpHdaFwpel88cdk?e=1PbQsM",
+  },
+  {
+    id: "permissions-control",
+    order: 2,
+    title: "Permissions & Control",
+    recordedWalkthroughUrl: "https://www.loom.com/share/62ad724712db4669ab3c72b3ffa40d02",
+    trainingSlidesUrl: SHARED_TRAINING_SLIDES_URL,
+  },
+  {
+    id: "developer-101",
+    order: 3,
+    title: "Developer 101",
+    recordedWalkthroughUrl: "https://www.loom.com/share/94c3051a0d754677a7ac5412648ea3b4",
+    trainingSlidesUrl: SHARED_TRAINING_SLIDES_URL,
+  },
+  {
+    id: "embedded-analytics",
+    order: 4,
+    title: "Embedded Analytics",
+    recordedWalkthroughUrl: "https://www.loom.com/share/42b67e17c95348e4be750f1de5245c30",
+    trainingSlidesUrl: SHARED_TRAINING_SLIDES_URL,
+  },
+  {
+    id: "ai-modes-optimization",
+    order: 5,
+    title: "AI Modes & Optimization",
+    recordedWalkthroughUrl:
+      "https://www.loom.com/share/fbaca752f5124898954115d852386f10?sid=d595bd00-cc48-45b4-8f1f-c5431d0481c4",
+    trainingSlidesUrl: SHARED_TRAINING_SLIDES_URL,
+  },
 ];
 
 export const quizModules: QuizModule[] = [

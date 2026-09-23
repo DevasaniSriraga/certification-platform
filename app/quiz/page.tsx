@@ -6,7 +6,7 @@ import {
   MAX_ATTEMPTS,
 } from "@/app/lib/quiz-data";
 import { getAllModuleProgress } from "@/app/lib/quiz-progress";
-import { learningMaterials } from "@/app/lib/learning-materials";
+import { additionalResources } from "@/app/lib/learning-materials";
 
 export default async function QuizIndexPage() {
   const session = await verifySession();
@@ -31,27 +31,6 @@ export default async function QuizIndexPage() {
         allows up to {MAX_ATTEMPTS} attempts.
       </p>
 
-      <div className="mt-8">
-        <h2 className="text-lg font-medium">Guided resources</h2>
-        <ul className="mt-4 flex flex-col gap-4">
-          {learningMaterials.map((material) => (
-            <li key={material.id} className="rounded border border-gray-300 p-4">
-              <a
-                href={material.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium underline"
-              >
-                {material.title}
-              </a>
-              <p className="mt-1 text-sm text-gray-600">
-                {material.description}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
       <p className="mt-8 text-sm font-medium">
         {passedCount} / {quizModules.length} modules passed
       </p>
@@ -66,8 +45,28 @@ export default async function QuizIndexPage() {
       )}
 
       {categories.map((category) => (
-        <div key={category.id} className="mt-8">
+        <div key={category.id} className="mt-10">
           <h2 className="text-lg font-medium">{category.title}</h2>
+
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:gap-4">
+            <a
+              href={category.recordedWalkthroughUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm underline"
+            >
+              Recorded walkthrough
+            </a>
+            <a
+              href={category.trainingSlidesUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm underline"
+            >
+              Training slides
+            </a>
+          </div>
+
           <ul className="mt-4 flex flex-col gap-3">
             {category.modules.map((quizModule) => {
               const p = progressByModule.get(quizModule.id);
@@ -120,6 +119,27 @@ export default async function QuizIndexPage() {
           </ul>
         </div>
       ))}
+
+      <div className="mt-10">
+        <h2 className="text-lg font-medium">Additional resources</h2>
+        <ul className="mt-4 flex flex-col gap-4">
+          {additionalResources.map((resource) => (
+            <li key={resource.id} className="rounded border border-gray-300 p-4">
+              <a
+                href={resource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline"
+              >
+                {resource.title}
+              </a>
+              <p className="mt-1 text-sm text-gray-600">
+                {resource.description}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
     </main>
   );
 }
