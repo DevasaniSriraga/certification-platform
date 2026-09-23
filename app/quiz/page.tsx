@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { verifySession } from "@/app/lib/dal";
-import { quizModules, MAX_ATTEMPTS } from "@/app/lib/quiz-data";
+import {
+  quizModules,
+  getCategoriesWithModules,
+  MAX_ATTEMPTS,
+} from "@/app/lib/quiz-data";
 import { getAllModuleProgress } from "@/app/lib/quiz-progress";
 import { learningMaterials } from "@/app/lib/learning-materials";
 
@@ -11,6 +15,7 @@ export default async function QuizIndexPage() {
 
   const passedCount = progress.filter((p) => p.passed).length;
   const allPassed = passedCount === quizModules.length;
+  const categories = getCategoriesWithModules();
 
   return (
     <main className="mx-auto flex w-full min-h-screen max-w-lg flex-col px-6 py-12">
@@ -60,59 +65,61 @@ export default async function QuizIndexPage() {
         </Link>
       )}
 
-      <div className="mt-6">
-        <h2 className="text-lg font-medium">Modules</h2>
-        <ul className="mt-4 flex flex-col gap-3">
-          {quizModules.map((quizModule) => {
-            const p = progressByModule.get(quizModule.id);
-            const passed = p?.passed ?? false;
-            const attemptsUsed = p?.attemptsUsed ?? 0;
-            const locked = p?.locked ?? false;
+      {categories.map((category) => (
+        <div key={category.id} className="mt-8">
+          <h2 className="text-lg font-medium">{category.title}</h2>
+          <ul className="mt-4 flex flex-col gap-3">
+            {category.modules.map((quizModule) => {
+              const p = progressByModule.get(quizModule.id);
+              const passed = p?.passed ?? false;
+              const attemptsUsed = p?.attemptsUsed ?? 0;
+              const locked = p?.locked ?? false;
 
-            let status: string;
-            let statusClass: string;
-            if (passed) {
-              status = `Passed (${p?.bestScore}/${p?.bestTotal})`;
-              statusClass = "text-green-700";
-            } else if (locked) {
-              status = "No attempts remaining";
-              statusClass = "text-red-700";
-            } else if (attemptsUsed > 0) {
-              status = `${MAX_ATTEMPTS - attemptsUsed} attempt(s) left`;
-              statusClass = "text-amber-700";
-            } else {
-              status = "Not started";
-              statusClass = "text-gray-500";
-            }
+              let status: string;
+              let statusClass: string;
+              if (passed) {
+                status = `Passed (${p?.bestScore}/${p?.bestTotal})`;
+                statusClass = "text-green-700";
+              } else if (locked) {
+                status = "No attempts remaining";
+                statusClass = "text-red-700";
+              } else if (attemptsUsed > 0) {
+                status = `${MAX_ATTEMPTS - attemptsUsed} attempt(s) left`;
+                statusClass = "text-amber-700";
+              } else {
+                status = "Not started";
+                statusClass = "text-gray-500";
+              }
 
-            return (
-              <li
-                key={quizModule.id}
-                className="flex items-center justify-between rounded border border-gray-300 p-4"
-              >
-                <div>
-                  <p className="font-medium">
-                    Module {quizModule.order}: {quizModule.title}
-                  </p>
-                  <p className={`text-sm ${statusClass}`}>{status}</p>
-                </div>
-                {passed ? (
-                  <span className="text-sm text-gray-400">Complete</span>
-                ) : locked ? (
-                  <span className="text-sm text-gray-400">Locked</span>
-                ) : (
-                  <Link
-                    href={`/quiz/${quizModule.id}`}
-                    className="rounded border border-gray-400 px-3 py-1.5 text-sm"
-                  >
-                    {attemptsUsed > 0 ? "Retry" : "Start"}
-                  </Link>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+              return (
+                <li
+                  key={quizModule.id}
+                  className="flex items-center justify-between rounded border border-gray-300 p-4"
+                >
+                  <div>
+                    <p className="font-medium">
+                      Module {quizModule.categoryOrder}: {quizModule.title}
+                    </p>
+                    <p className={`text-sm ${statusClass}`}>{status}</p>
+                  </div>
+                  {passed ? (
+                    <span className="text-sm text-gray-400">Complete</span>
+                  ) : locked ? (
+                    <span className="text-sm text-gray-400">Locked</span>
+                  ) : (
+                    <Link
+                      href={`/quiz/${quizModule.id}`}
+                      className="rounded border border-gray-400 px-3 py-1.5 text-sm"
+                    >
+                      {attemptsUsed > 0 ? "Retry" : "Start"}
+                    </Link>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </main>
   );
 }

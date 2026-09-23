@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { verifySession } from "@/app/lib/dal";
-import { getModule, MAX_ATTEMPTS } from "@/app/lib/quiz-data";
+import { getModule, quizCategories, MAX_ATTEMPTS } from "@/app/lib/quiz-data";
 import { getModuleProgress } from "@/app/lib/quiz-progress";
 import { QuizForm } from "./quiz-form";
 
@@ -19,6 +19,7 @@ export default async function QuizModulePage({
   }
 
   const progress = await getModuleProgress(session.userId, moduleId);
+  const category = quizCategories.find((c) => c.id === quizModule.categoryId);
 
   const publicQuestions = quizModule.questions.map((q) => ({
     id: q.id,
@@ -32,8 +33,11 @@ export default async function QuizModulePage({
         &larr; Back to modules
       </Link>
 
-      <h1 className="mt-4 text-2xl font-semibold">
-        Module {quizModule.order}: {quizModule.title}
+      <p className="mt-4 text-sm font-medium uppercase tracking-wide text-gray-500">
+        {category?.title}
+      </p>
+      <h1 className="text-2xl font-semibold">
+        Module {quizModule.categoryOrder}: {quizModule.title}
       </h1>
 
       {progress.passed ? (

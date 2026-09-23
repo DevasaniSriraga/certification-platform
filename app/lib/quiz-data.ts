@@ -6,9 +6,16 @@ export type QuizQuestion = {
   correctIndex: number;
 };
 
-export type QuizModule = {
+export type QuizCategory = {
   id: string;
   order: number;
+  title: string;
+};
+
+export type QuizModule = {
+  id: string;
+  categoryId: string;
+  categoryOrder: number;
   title: string;
   questions: QuizQuestion[];
 };
@@ -16,10 +23,19 @@ export type QuizModule = {
 const PASS_THRESHOLD = 0.8;
 const MAX_ATTEMPTS = 3;
 
+export const quizCategories: QuizCategory[] = [
+  { id: "user-101", order: 1, title: "User 101" },
+  { id: "developer-101", order: 2, title: "Developer 101" },
+  { id: "permissions-control", order: 3, title: "Permissions & Control" },
+  { id: "embedded-analytics", order: 4, title: "Embedded Analytics" },
+  { id: "ai-modes-optimization", order: 5, title: "AI Modes & Optimization" },
+];
+
 export const quizModules: QuizModule[] = [
   {
     id: "module-1",
-    order: 1,
+    categoryId: "user-101",
+    categoryOrder: 1,
     title: "Platform Fundamentals & Navigation",
     questions: [
       {
@@ -99,7 +115,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-2",
-    order: 2,
+    categoryId: "developer-101",
+    categoryOrder: 1,
     title: "Connecting Data & the Data Model",
     questions: [
       {
@@ -179,7 +196,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-3",
-    order: 3,
+    categoryId: "user-101",
+    categoryOrder: 2,
     title: "Workbooks & Querying Basics",
     questions: [
       {
@@ -254,7 +272,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-4",
-    order: 4,
+    categoryId: "user-101",
+    categoryOrder: 3,
     title: "Visualizations & Charts",
     questions: [
       {
@@ -324,7 +343,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-5",
-    order: 5,
+    categoryId: "user-101",
+    categoryOrder: 4,
     title: "Dashboards & Sharing Basics",
     questions: [
       {
@@ -404,7 +424,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-6",
-    order: 6,
+    categoryId: "developer-101",
+    categoryOrder: 2,
     title: "Advanced Modeling",
     questions: [
       {
@@ -479,7 +500,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-7",
-    order: 7,
+    categoryId: "ai-modes-optimization",
+    categoryOrder: 1,
     title: "AI & Blobby",
     questions: [
       {
@@ -564,7 +586,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-8",
-    order: 8,
+    categoryId: "permissions-control",
+    categoryOrder: 1,
     title: "Security & Governance",
     questions: [
       {
@@ -644,7 +667,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-9",
-    order: 9,
+    categoryId: "embedded-analytics",
+    categoryOrder: 1,
     title: "Embedding & Distribution",
     questions: [
       {
@@ -724,7 +748,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-10",
-    order: 10,
+    categoryId: "ai-modes-optimization",
+    categoryOrder: 2,
     title: "Performance & Troubleshooting",
     questions: [
       {
@@ -804,7 +829,8 @@ export const quizModules: QuizModule[] = [
   },
   {
     id: "module-11",
-    order: 11,
+    categoryId: "developer-101",
+    categoryOrder: 3,
     title: "Administration & Deployment",
     questions: [
       {
@@ -896,6 +922,19 @@ export const quizModules: QuizModule[] = [
 
 export function getModule(moduleId: string): QuizModule | undefined {
   return quizModules.find((m) => m.id === moduleId);
+}
+
+export function getCategoriesWithModules(): Array<
+  QuizCategory & { modules: QuizModule[] }
+> {
+  return [...quizCategories]
+    .sort((a, b) => a.order - b.order)
+    .map((category) => ({
+      ...category,
+      modules: quizModules
+        .filter((m) => m.categoryId === category.id)
+        .sort((a, b) => a.categoryOrder - b.categoryOrder),
+    }));
 }
 
 export function scoreQuiz(quizModule: QuizModule, answers: Record<string, number>) {
