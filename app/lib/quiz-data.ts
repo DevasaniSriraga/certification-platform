@@ -14,11 +14,14 @@ export type QuizCategory = {
   trainingSlidesUrl: string;
 };
 
+export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
+
 export type QuizModule = {
   id: string;
   categoryId: string;
   categoryOrder: number;
   title: string;
+  difficulty: Difficulty;
   questions: QuizQuestion[];
 };
 
@@ -74,6 +77,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "user-101",
     categoryOrder: 1,
     title: "Platform Fundamentals & Navigation",
+    difficulty: "Beginner",
     questions: [
       {
         id: "m1-q1",
@@ -155,6 +159,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "developer-101",
     categoryOrder: 1,
     title: "Connecting Data & the Data Model",
+    difficulty: "Intermediate",
     questions: [
       {
         id: "m2-q1",
@@ -236,6 +241,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "user-101",
     categoryOrder: 2,
     title: "Workbooks & Querying Basics",
+    difficulty: "Beginner",
     questions: [
       {
         id: "m3-q1",
@@ -312,6 +318,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "user-101",
     categoryOrder: 3,
     title: "Visualizations & Charts",
+    difficulty: "Beginner",
     questions: [
       {
         id: "m4-q1",
@@ -383,6 +390,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "user-101",
     categoryOrder: 4,
     title: "Dashboards & Sharing Basics",
+    difficulty: "Beginner",
     questions: [
       {
         id: "m5-q1",
@@ -464,6 +472,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "developer-101",
     categoryOrder: 2,
     title: "Advanced Modeling",
+    difficulty: "Advanced",
     questions: [
       {
         id: "m6-q1",
@@ -540,6 +549,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "ai-modes-optimization",
     categoryOrder: 1,
     title: "AI & Blobby",
+    difficulty: "Intermediate",
     questions: [
       {
         id: "m7-q1",
@@ -626,6 +636,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "permissions-control",
     categoryOrder: 1,
     title: "Security & Governance",
+    difficulty: "Advanced",
     questions: [
       {
         id: "m8-q1",
@@ -707,6 +718,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "embedded-analytics",
     categoryOrder: 1,
     title: "Embedding & Distribution",
+    difficulty: "Intermediate",
     questions: [
       {
         id: "m9-q1",
@@ -788,6 +800,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "ai-modes-optimization",
     categoryOrder: 2,
     title: "Performance & Troubleshooting",
+    difficulty: "Advanced",
     questions: [
       {
         id: "m10-q1",
@@ -869,6 +882,7 @@ export const quizModules: QuizModule[] = [
     categoryId: "developer-101",
     categoryOrder: 3,
     title: "Administration & Deployment",
+    difficulty: "Advanced",
     questions: [
       {
         id: "m11-q1",
@@ -985,5 +999,36 @@ export function scoreQuiz(quizModule: QuizModule, answers: Record<string, number
   const passed = score / total >= PASS_THRESHOLD;
   return { score, total, passed };
 }
+
+export type ReviewItem = {
+  questionId: string;
+  text: string;
+  options: string[];
+  selectedIndex: number | null;
+  correct: boolean;
+  correctIndex?: number;
+};
+
+/** Reveal the correct answer per question only when `reveal` is true. */
+export function buildReview(
+  quizModule: QuizModule,
+  answers: Record<string, number>,
+  reveal: boolean
+): ReviewItem[] {
+  return quizModule.questions.map((q) => {
+    const selectedIndex = answers[q.id] ?? null;
+    return {
+      questionId: q.id,
+      text: q.text,
+      options: q.options,
+      selectedIndex,
+      correct: selectedIndex === q.correctIndex,
+      ...(reveal ? { correctIndex: q.correctIndex } : {}),
+    };
+  });
+}
+
+export const QUIZ_TIME_ESTIMATE = "10–15 min";
+export const PROJECT_TIME_ESTIMATE = "5–6 hrs";
 
 export { PASS_THRESHOLD, MAX_ATTEMPTS };

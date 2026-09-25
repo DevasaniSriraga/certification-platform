@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { verifyAdminSession } from "@/app/lib/dal";
 import { prisma } from "@/app/lib/prisma";
+import { getUserProgressSummary } from "@/app/lib/progress";
+import { ProgressBar } from "@/app/components/progress-bar";
 import { CreateUserForm } from "./create-user-form";
 import { ProjectReviewForm } from "./project-review-form";
 
 export default async function AdminPage() {
   await verifyAdminSession();
 
-  const [users, pendingSubmissions, certificates] = await Promise.all([
+  const [usersRaw, pendingSubmissions, certificates] = await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
       select: { id: true, fullName: true, email: true, role: true, createdAt: true },
@@ -22,6 +24,13 @@ export default async function AdminPage() {
       include: { user: { select: { fullName: true, email: true } } },
     }),
   ]);
+
+  const users = await Promise.all(
+    usersRaw.map(async (u) => ({
+      ...u,
+      progress: await getUserProgressSummary(u.id),
+    }))
+  );
 
   return (
     <main className="mx-auto flex w-full min-h-screen max-w-2xl flex-col px-6 py-12">
@@ -41,30 +50,50 @@ export default async function AdminPage() {
 
       <div className="mt-10">
         <h2 className="text-lg font-medium">Accounts ({users.length})</h2>
-        <ul className="mt-4 flex flex-col gap-2">
+        <ul className="mt-4 flex flex-col gap-3">
           {users.map((u) => (
             <li
               key={u.id}
-              className="flex items-center justify-between rounded border border-gray-200 px-4 py-3 text-sm"
+              className="rounded border border-gray-200 px-4 py-3 text-sm"
             >
-              <div>
-                <p className="font-medium">{u.fullName}</p>
-                <p className="text-gray-500">{u.email}</p>
-              </div>
-              <div className="text-right text-gray-400">
-                {u.role === "admin" && (
-                  <span className="mr-2 rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                    Admin
-                  </span>
-                )}
-                <span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium">
+                    {u.fullName}
+                    {u.role === "admin" && (
+                      <span className="ml-2 rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                        Admin
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-gray-500">{u.email}</p>
+                </div>
+                <div className="text-right text-xs text-gray-400">
                   {u.createdAt.toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
                   })}
-                </span>
+                </div>
               </div>
+
+              {u.role !== "admin" && (
+                <div className="mt-3">
+                  <ProgressBar percent={u.progress.percent} />
+                  <div className="mt-1 flex items-center justify-between text-xs text-gray-500">
+                    <span>
+                      {u.progress.modulesPassed} / {u.progress.totalModules}{" "}
+                      modules passed
+                    </span>
+                    <Link
+                      href={`/admin/users/${u.id}`}
+                      className="underline"
+                    >
+                      View details &rarr;
+                    </Link>
+                  </div>
+                </div>
+              )}
             </li>
           ))}
         </ul>

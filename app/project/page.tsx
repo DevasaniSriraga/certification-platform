@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { verifySession } from "@/app/lib/dal";
 import { hasPassedAllModules } from "@/app/lib/quiz-progress";
+import { PROJECT_TIME_ESTIMATE } from "@/app/lib/quiz-data";
 import { getProjectSubmission } from "@/app/lib/project-progress";
 import { ProjectForm } from "./project-form";
 
@@ -19,6 +20,9 @@ export default async function ProjectPage() {
         Create a model/topic and build a dashboard/app in Omni for your own
         use case. Share the link, and upload a PDF write-up of what you
         built.
+      </p>
+      <p className="mt-1 text-sm text-gray-500">
+        Estimated time: {PROJECT_TIME_ESTIMATE}
       </p>
 
       {!allPassed ? (

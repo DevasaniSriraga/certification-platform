@@ -4,6 +4,7 @@ import {
   quizModules,
   getCategoriesWithModules,
   MAX_ATTEMPTS,
+  QUIZ_TIME_ESTIMATE,
 } from "@/app/lib/quiz-data";
 import { getAllModuleProgress } from "@/app/lib/quiz-progress";
 import { additionalResources } from "@/app/lib/learning-materials";
@@ -80,7 +81,13 @@ export default async function QuizIndexPage() {
                 status = `Passed (${p?.bestScore}/${p?.bestTotal})`;
                 statusClass = "text-green-700";
               } else if (locked) {
-                status = "No attempts remaining";
+                status = p?.lockedUntil
+                  ? `Locked until ${p.lockedUntil.toLocaleString("en-US", {
+                      weekday: "short",
+                      hour: "numeric",
+                      minute: "2-digit",
+                    })}`
+                  : "No attempts remaining";
                 statusClass = "text-red-700";
               } else if (attemptsUsed > 0) {
                 status = `${MAX_ATTEMPTS - attemptsUsed} attempt(s) left`;
@@ -98,6 +105,11 @@ export default async function QuizIndexPage() {
                   <div>
                     <p className="font-medium">
                       Module {quizModule.categoryOrder}: {quizModule.title}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {quizModule.difficulty} ·{" "}
+                      {quizModule.questions.length} questions ·{" "}
+                      {QUIZ_TIME_ESTIMATE}
                     </p>
                     <p className={`text-sm ${statusClass}`}>{status}</p>
                   </div>

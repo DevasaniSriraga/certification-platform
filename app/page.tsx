@@ -1,11 +1,36 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="mx-auto flex w-full min-h-screen max-w-lg flex-col items-center justify-center px-6 text-center">
-      <h1 className="text-3xl font-semibold">Certification Program</h1>
+      <div className="flex items-center gap-4 rounded-xl bg-white px-6 py-4 shadow-sm">
+        <Image
+          src="/logos/copart-logo.png"
+          alt="Copart"
+          width={90}
+          height={34}
+          priority
+        />
+        <span className="text-gray-400">×</span>
+        <Image
+          src="/logos/omni-logo.png"
+          alt="Omni"
+          width={70}
+          height={28}
+          priority
+        />
+      </div>
+
+      <p className="mt-6 text-sm font-medium uppercase tracking-wide text-gray-500">
+        Copart Data Team presents
+      </p>
+      <h1 className="mt-2 text-3xl font-semibold">
+        Omni Analytics Certification Program
+      </h1>
       <p className="mt-4 text-gray-600">
-        Learn the material, pass the quiz, and download your certificate.
+        Learn Omni through guided resources, pass the module quizzes, submit
+        a practical project, and earn your certification.
       </p>
 
       <Link

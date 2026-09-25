@@ -31,6 +31,8 @@ model QuizAttempt {
   score     Int
   total     Int
   passed    Boolean
+  /// Map of questionId -> selected option index, for post-attempt review.
+  answers   Json     @default("{}")
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
