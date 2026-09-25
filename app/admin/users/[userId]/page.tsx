@@ -4,12 +4,14 @@ import { verifyAdminSession } from "@/app/lib/dal";
 import { prisma } from "@/app/lib/prisma";
 import {
   getCategoriesWithModules,
+  buildReview,
   MAX_ATTEMPTS,
 } from "@/app/lib/quiz-data";
 import { getAllModuleProgress } from "@/app/lib/quiz-progress";
 import { getProjectSubmission } from "@/app/lib/project-progress";
 import { getUserProgressSummary } from "@/app/lib/progress";
 import { ProgressBar } from "@/app/components/progress-bar";
+import { QuizReviewList } from "@/app/quiz/[moduleId]/quiz-review";
 
 export default async function AdminUserDetailPage({
   params,
@@ -27,14 +29,25 @@ export default async function AdminUserDetailPage({
     notFound();
   }
 
-  const [moduleProgress, submission, certificate, summary] = await Promise.all([
-    getAllModuleProgress(userId),
-    getProjectSubmission(userId),
-    prisma.certificate.findUnique({ where: { userId } }),
-    getUserProgressSummary(userId),
-  ]);
+  const [moduleProgress, attempts, submission, certificate, summary] =
+    await Promise.all([
+      getAllModuleProgress(userId),
+      prisma.quizAttempt.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+      }),
+      getProjectSubmission(userId),
+      prisma.certificate.findUnique({ where: { userId } }),
+      getUserProgressSummary(userId),
+    ]);
 
   const progressByModule = new Map(moduleProgress.map((p) => [p.moduleId, p]));
+  const attemptsByModule = new Map<string, typeof attempts>();
+  for (const attempt of attempts) {
+    const list = attemptsByModule.get(attempt.moduleId) ?? [];
+    list.push(attempt);
+    attemptsByModule.set(attempt.moduleId, list);
+  }
   const categories = getCategoriesWithModules();
 
   return (
@@ -86,25 +99,63 @@ export default async function AdminUserDetailPage({
                   statusClass = "text-gray-500";
                 }
 
+                const moduleAttempts = attemptsByModule.get(quizModule.id) ?? [];
+
                 return (
                   <li
                     key={quizModule.id}
-                    className="flex items-center justify-between rounded border border-gray-200 px-4 py-2 text-sm"
+                    className="rounded border border-gray-200 px-4 py-2 text-sm"
                   >
-                    <div>
-                      <p className="font-medium">
-                        Module {quizModule.categoryOrder}: {quizModule.title}
-                      </p>
-                      <p className={statusClass}>{statusText}</p>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">
+                          Module {quizModule.categoryOrder}: {quizModule.title}
+                        </p>
+                        <p className={statusClass}>{statusText}</p>
+                      </div>
+                      <div className="text-right text-xs text-gray-500">
+                        <p>
+                          {attemptsUsed} / {MAX_ATTEMPTS} attempts
+                        </p>
+                        <p>
+                          Best: {p?.bestScore ?? "–"}/{p?.bestTotal ?? quizModule.questions.length}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right text-xs text-gray-500">
-                      <p>
-                        {attemptsUsed} / {MAX_ATTEMPTS} attempts
-                      </p>
-                      <p>
-                        Best: {p?.bestScore ?? "–"}/{p?.bestTotal ?? quizModule.questions.length}
-                      </p>
-                    </div>
+
+                    {moduleAttempts.length > 0 && (
+                      <details className="mt-2">
+                        <summary className="cursor-pointer text-xs text-gray-500 underline">
+                          View submitted answers ({moduleAttempts.length}{" "}
+                          attempt{moduleAttempts.length === 1 ? "" : "s"})
+                        </summary>
+                        <div className="mt-3 flex flex-col gap-6">
+                          {moduleAttempts.map((attempt, i) => {
+                            const attemptNumber = moduleAttempts.length - i;
+                            const review = buildReview(
+                              quizModule,
+                              attempt.answers as Record<string, number>,
+                              true
+                            );
+                            return (
+                              <QuizReviewList
+                                key={attempt.id}
+                                review={review}
+                                title={`Attempt ${attemptNumber} · ${attempt.createdAt.toLocaleString(
+                                  "en-US",
+                                  {
+                                    dateStyle: "medium",
+                                    timeStyle: "short",
+                                  }
+                                )} · ${attempt.score}/${attempt.total} · ${
+                                  attempt.passed ? "Passed" : "Failed"
+                                }`}
+                              />
+                            );
+                          })}
+                        </div>
+                      </details>
+                    )}
                   </li>
                 );
               })}

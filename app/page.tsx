@@ -35,13 +35,10 @@ export default function Home() {
 
       <Link
         href="/login"
-        className="mt-8 rounded bg-black px-5 py-2.5 text-white"
+        className="mt-8 w-full rounded-lg bg-black px-6 py-3.5 text-base font-semibold text-white shadow-md transition hover:bg-gray-800 hover:shadow-lg"
       >
-        Log in
+        Log in &rarr;
       </Link>
-      <p className="mt-4 text-sm text-gray-500">
-        Don&apos;t have an account? Contact your administrator.
-      </p>
     </main>
   );
 }

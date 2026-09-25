@@ -1,9 +1,15 @@
 import type { ReviewItem } from "@/app/lib/quiz-data";
 
-export function QuizReviewList({ review }: { review: ReviewItem[] }) {
+export function QuizReviewList({
+  review,
+  title = "Review your answers",
+}: {
+  review: ReviewItem[];
+  title?: string;
+}) {
   return (
     <div className="mt-8 flex flex-col gap-4">
-      <h2 className="text-lg font-medium">Review your answers</h2>
+      <h2 className="text-lg font-medium">{title}</h2>
       {review.map((item, i) => {
         const reveal = item.correctIndex !== undefined;
         return (

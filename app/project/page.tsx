@@ -60,6 +60,10 @@ async function ProjectStatus({ userId }: { userId: string }) {
                 {submission.reviewNote}
               </p>
             )}
+            <p className="mt-3 text-sm text-gray-600">
+              Link: <a href={submission.link} className="underline">{submission.link}</a>
+            </p>
+            <p className="text-sm text-gray-600">File: {submission.pdfFileName}</p>
           </div>
         )}
         <ProjectForm />
@@ -89,6 +93,10 @@ async function ProjectStatus({ userId }: { userId: string }) {
       <p className="mt-1 text-sm text-green-700">
         Your project has been approved. Your certificate is ready.
       </p>
+      <p className="mt-3 text-sm text-gray-600">
+        Link: <a href={submission.link} className="underline">{submission.link}</a>
+      </p>
+      <p className="text-sm text-gray-600">File: {submission.pdfFileName}</p>
       <Link
         href="/certificate"
         className="mt-4 inline-block rounded bg-black px-4 py-2 text-sm text-white"

@@ -20,6 +20,27 @@ const SIGNATURE_FONT_PATH = path.join(
 const ISSUER_TITLE = "Senior director of Technology, Data";
 const ISSUER_SIGNATURE_NAME = "Hardik Bhavsar";
 
+// The template's baked-in title ("Omni BI Certification Program (Copart)")
+// and its repeat inside the body paragraph are covered with a whiteout
+// rectangle and redrawn as "Omni Analytics Certificate". Coordinates were
+// measured directly from the template's content stream (PyMuPDF span
+// bboxes/origins), then converted from top-left to pdf-lib's bottom-left
+// origin (y_bottom = 540 - y_top).
+const CERT_NAME = "Omni Analytics Certificate";
+
+const TITLE_WHITEOUT = { x: 100, y: 358, width: 760, height: 77 };
+const TITLE_Y = 383.92;
+const TITLE_FONT_SIZE = 33.8;
+const TITLE_COLOR = rgb(0.106, 0.165, 0.29);
+
+const BODY_TITLE_WHITEOUT = { x: 375, y: 224.94, width: 156, height: 19.35 };
+// Right edge of the original template phrase, so the replacement butts up
+// against "at Copart" with normal word-spacing instead of leaving a gap.
+const BODY_TITLE_RIGHT_EDGE = 528.87;
+const BODY_TITLE_Y = 230.13;
+const BODY_TITLE_FONT_SIZE = 12.775;
+const BODY_TITLE_COLOR = rgb(0.2, 0.2, 0.2);
+
 // Logos sit in the top-right of the header, in the clear space above
 // "CERTIFICATE OF COMPLETION" and to the right of the decorative circles.
 const LOGO_ROW_Y = 472;
@@ -92,6 +113,32 @@ export async function generateCertificatePdf({
   const fieldFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const signatureFontBytes = await fs.readFile(SIGNATURE_FONT_PATH);
   const signatureFont = await pdfDoc.embedFont(signatureFontBytes);
+
+  const titleFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
+  const bodyTitleFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+  page.drawRectangle({ ...TITLE_WHITEOUT, color: rgb(1, 1, 1) });
+  const titleWidth = titleFont.widthOfTextAtSize(CERT_NAME, TITLE_FONT_SIZE);
+  page.drawText(CERT_NAME, {
+    x: (width - titleWidth) / 2,
+    y: TITLE_Y,
+    size: TITLE_FONT_SIZE,
+    font: titleFont,
+    color: TITLE_COLOR,
+  });
+
+  page.drawRectangle({ ...BODY_TITLE_WHITEOUT, color: rgb(1, 1, 1) });
+  const bodyTitleWidth = bodyTitleFont.widthOfTextAtSize(
+    CERT_NAME,
+    BODY_TITLE_FONT_SIZE
+  );
+  page.drawText(CERT_NAME, {
+    x: BODY_TITLE_RIGHT_EDGE - bodyTitleWidth,
+    y: BODY_TITLE_Y,
+    size: BODY_TITLE_FONT_SIZE,
+    font: bodyTitleFont,
+    color: BODY_TITLE_COLOR,
+  });
 
   let nameSize = NAME_FONT_SIZE;
   let nameWidth = nameFont.widthOfTextAtSize(fullName, nameSize);
