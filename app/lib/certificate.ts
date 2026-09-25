@@ -2,6 +2,7 @@ import "server-only";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { PDFDocument, StandardFonts, rgb, type PDFImage } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 
 const TEMPLATE_PATH = path.join(
   process.cwd(),
@@ -11,6 +12,13 @@ const LOGOS_DIR = path.join(
   process.cwd(),
   "app/lib/certificate-assets/logos"
 );
+const SIGNATURE_FONT_PATH = path.join(
+  process.cwd(),
+  "app/lib/certificate-assets/fonts/AlexBrush-Regular.ttf"
+);
+
+const ISSUER_TITLE = "Senior director of Technology, Data";
+const ISSUER_SIGNATURE_NAME = "Hardik Bhavsar";
 
 // Logos sit in the top-right of the header, in the clear space above
 // "CERTIFICATE OF COMPLETION" and to the right of the decorative circles.
@@ -50,7 +58,15 @@ const FIELD_FONT_SIZE = 12;
 const FIELD_COLOR = rgb(0.2, 0.2, 0.2);
 const DATE_FIELD_CENTER_X = 219.9;
 const CERT_ID_FIELD_CENTER_X = 479.3;
+const ISSUER_FIELD_CENTER_X = 738.5;
 const FIELD_WHITEOUT_WIDTH = 180;
+const ISSUER_FIELD_WHITEOUT_WIDTH = 280;
+
+// Signature sits just above the "Issued By" printed title, in the blank
+// space below the body paragraph.
+const SIGNATURE_Y = 157;
+const SIGNATURE_FONT_SIZE = 26;
+const SIGNATURE_COLOR = rgb(0.106, 0.165, 0.29);
 
 function formatIssuedDate(date: Date) {
   const month = date.toLocaleString("en-US", { month: "long" });
@@ -68,11 +84,14 @@ export async function generateCertificatePdf({
 }): Promise<Uint8Array> {
   const templateBytes = await fs.readFile(TEMPLATE_PATH);
   const pdfDoc = await PDFDocument.load(templateBytes);
+  pdfDoc.registerFontkit(fontkit);
   const page = pdfDoc.getPages()[0];
   const { width } = page.getSize();
 
   const nameFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
   const fieldFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const signatureFontBytes = await fs.readFile(SIGNATURE_FONT_PATH);
+  const signatureFont = await pdfDoc.embedFont(signatureFontBytes);
 
   let nameSize = NAME_FONT_SIZE;
   let nameWidth = nameFont.widthOfTextAtSize(fullName, nameSize);
@@ -89,19 +108,24 @@ export async function generateCertificatePdf({
     color: NAME_COLOR,
   });
 
-  const drawField = (text: string, centerX: number) => {
+  const drawField = (
+    text: string,
+    centerX: number,
+    whiteoutWidth: number = FIELD_WHITEOUT_WIDTH,
+    fontSize: number = FIELD_FONT_SIZE
+  ) => {
     page.drawRectangle({
-      x: centerX - FIELD_WHITEOUT_WIDTH / 2,
+      x: centerX - whiteoutWidth / 2,
       y: FIELD_VALUE_Y - 5,
-      width: FIELD_WHITEOUT_WIDTH,
+      width: whiteoutWidth,
       height: FIELD_VALUE_HEIGHT,
       color: rgb(1, 1, 1),
     });
-    const textWidth = fieldFont.widthOfTextAtSize(text, FIELD_FONT_SIZE);
+    const textWidth = fieldFont.widthOfTextAtSize(text, fontSize);
     page.drawText(text, {
       x: centerX - textWidth / 2,
       y: FIELD_VALUE_Y,
-      size: FIELD_FONT_SIZE,
+      size: fontSize,
       font: fieldFont,
       color: FIELD_COLOR,
     });
@@ -109,6 +133,19 @@ export async function generateCertificatePdf({
 
   drawField(formatIssuedDate(issuedAt), DATE_FIELD_CENTER_X);
   drawField(certificateId, CERT_ID_FIELD_CENTER_X);
+  drawField(ISSUER_TITLE, ISSUER_FIELD_CENTER_X, ISSUER_FIELD_WHITEOUT_WIDTH, 11);
+
+  const signatureWidth = signatureFont.widthOfTextAtSize(
+    ISSUER_SIGNATURE_NAME,
+    SIGNATURE_FONT_SIZE
+  );
+  page.drawText(ISSUER_SIGNATURE_NAME, {
+    x: ISSUER_FIELD_CENTER_X - signatureWidth / 2,
+    y: SIGNATURE_Y,
+    size: SIGNATURE_FONT_SIZE,
+    font: signatureFont,
+    color: SIGNATURE_COLOR,
+  });
 
   // Co-branding: Copart (issuing org) on the left, Omni (platform) on the
   // right, right-aligned as a group to LOGO_RIGHT_EDGE.
